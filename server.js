@@ -6,6 +6,7 @@ const morgan = require('morgan')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const session = require('express-session')
+const MongoStore = require('connect-mongo')(session)
 
 const app = express()
 
@@ -23,7 +24,11 @@ app.set('view enigine', 'ejs')
 app.use(session({
   secret: 'tarantino',
   saveUninitialized: true,
-  resave: true
+  resave: true,
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection,
+    ttl: 30
+  })
 }))
 
 app.use(passport.initialize())
