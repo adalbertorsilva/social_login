@@ -20,7 +20,12 @@ app.use(bodyParser())
 
 app.set('view enigine', 'ejs')
 
-app.use(session({secret: 'tarantino'}))
+app.use(session({
+  secret: 'tarantino',
+  saveUninitialized: true,
+  resave: true
+}))
+
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash())
