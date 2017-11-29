@@ -10,13 +10,14 @@ const session = require('express-session')
 const app = express()
 
 const configDB = require('./config/database.js')
-mongoose.connect(configDB.url)
+mongoose.connect(configDB.url, { useMongoClient: true })
 
 require('./config/passport')(passport)
 
 app.use(morgan('dev'))
 app.use(cookieParser())
-app.use(bodyParser())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 
 app.set('view enigine', 'ejs')
 

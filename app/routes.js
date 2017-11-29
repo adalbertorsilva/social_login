@@ -43,12 +43,28 @@ module.exports = (app, passport) => {
     })
   })
 
-  app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email' }))
+  // app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email' }))
 
-  app.get('/auth/facebook/callback', passport.authenticate('facebook', {
-    successRedirect: '/profile',
-    failureRedirect: '/'
-  }))
+  app.get('/auth/facebook', function (req, res, next) {
+    res.cookie('success_url', req.query.success_url)
+    passport.authenticate('facebook', {scope: 'email', callbackURL: '/auth/facebook/callback'})(req, res, next)
+  })
+
+  app.get('/auth/facebook/callback', (req, res, next) => {
+    console.log('COOKIES AQUI ---------> ', req.cookies)
+    passport.authenticate('facebook', (err, user, info) => {
+      if (err) {
+        console.log('----------------  TEMOS UM ERRO  ----------------')
+        console.error(err)
+        return next(err)
+      }
+      if (!user) { return res.redirect('/') }
+      req.logIn(user, (err) => {
+        if (err) { return next(err) }
+        return res.redirect(req.cookies.success_url)
+      })
+    })(req, res, next)
+  })
 
   app.get('/connect/facebook', passport.authorize('facebook', { scope: ['email', 'public_profile'] }))
 
